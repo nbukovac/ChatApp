@@ -1,0 +1,16 @@
+<h1>Chat</h1>
+
+<form (ngSubmit)="sendMessage()" #chatForm="ngForm">
+    <div>
+        <label for="message">Message</label>
+        <input type="text" id="message" name="message" [(ngModel)]="message" required/>
+    </div>
+    <button type="submit" id="sendMessage">
+        Send message
+    </button>
+</form>
+
+<ul>
+    <li *ngFor="let message of messages">{{message}}</li>
+</ul>
+
