@@ -17,14 +17,21 @@ export class ChatComponent implements OnInit {
         this.name = tempName ? tempName : '';
         
         this.connection.on('send', (name: string,  receivedMessage: string) => {
-            const text = this.name + ': ' + receivedMessage;
+            const text = name + ': ' + receivedMessage;
+            this.messages.push(text);
+        });
+        
+        this.connection.on('onClientJoin', (name: string) => {
+            const text = name + ' joined our pity chat';
             this.messages.push(text);
         });
         
         this.connection
             .start()
             .then(() => {
-                console.log('Chat app started');
+                this.connection
+                    .invoke('onClientJoin', this.name)
+                    .catch(error => console.log('The following error occured: ' + error.toString()));
             })
             .catch(error => console.log('The following error occurred: ' + error.toString()));
     }

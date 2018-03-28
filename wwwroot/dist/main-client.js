@@ -59,7 +59,7 @@
 /******/ 	
 /******/ 	
 /******/ 	var hotApplyOnUpdate = true;
-/******/ 	var hotCurrentHash = "4d2285c3cbddfdf03c84"; // eslint-disable-line no-unused-vars
+/******/ 	var hotCurrentHash = "0d367a448c53a0365197"; // eslint-disable-line no-unused-vars
 /******/ 	var hotCurrentModuleData = {};
 /******/ 	var hotCurrentChildModule; // eslint-disable-line no-unused-vars
 /******/ 	var hotCurrentParents = []; // eslint-disable-line no-unused-vars
@@ -4263,13 +4263,19 @@ var ChatComponent = (function () {
         var tempName = window.prompt('Your name: ', 'John Doe');
         this.name = tempName ? tempName : '';
         this.connection.on('send', function (name, receivedMessage) {
-            var text = _this.name + ': ' + receivedMessage;
+            var text = name + ': ' + receivedMessage;
+            _this.messages.push(text);
+        });
+        this.connection.on('onClientJoin', function (name) {
+            var text = 'User ' + name + ' joined our pity chat';
             _this.messages.push(text);
         });
         this.connection
             .start()
             .then(function () {
-            console.log('Chat app started');
+            _this.connection
+                .invoke('onClientJoin', _this.name)
+                .catch(function (error) { return console.log('The following error occured: ' + error.toString()); });
         })
             .catch(function (error) { return console.log('The following error occurred: ' + error.toString()); });
     };

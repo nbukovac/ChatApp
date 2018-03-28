@@ -9,5 +9,10 @@ namespace ChatApp.Chat
         {
             return Clients.All.SendAsync("send", name, message);
         }
+
+        public Task OnClientJoin(string name)
+        {
+            return Clients.All.SendAsync("onClientJoin", name);
+        }
     }
 }
