@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.SignalR;
 
 namespace ChatApp.Chat
@@ -12,7 +13,22 @@ namespace ChatApp.Chat
 
         public Task OnClientJoin(string name)
         {
-            return Clients.All.SendAsync("onClientJoin", name);
+            return Clients.Others.SendAsync("onClientJoin", name, Context.ConnectionId);
+        }
+        
+        public Task OnClientJoinIntroduce(string name, string id)
+        {
+            return Clients.Client(id).SendAsync("onClientJoinIntroduce", name, Context.ConnectionId);
+        }
+
+        public override Task OnDisconnectedAsync(Exception exception)
+        {
+            return Clients.Others.SendAsync("onClientDisconnect", Context.ConnectionId);
+        }
+
+        public Task SendPrivateMessage(string receiverId, string senderId, string message)
+        {
+            return Clients.Client(receiverId).SendAsync("sendPrivateMessage", senderId, message);
         }
     }
 }
