@@ -15,16 +15,16 @@ export class ChatComponent implements OnInit {
     
     privateMessages: PrivateMessaging[] = [];
     
-    MessageType : typeof MessageType = MessageType;
+    MessageType: typeof MessageType = MessageType;
     
     ngOnInit() : void {
         
         let tempName = window.prompt('Your name: ', 'John Doe');
         this.name = tempName ? tempName : '';
         
-        this.connection.on('send', (name: string,  receivedMessage: string) => {
+        this.connection.on('onSendMessage', (name: string,  receivedMessage: string) => {
             const text = name + ': ' + receivedMessage;
-            this.publicMessages.push(new Message(text,  MessageType.Message));
+            this.publicMessages.push(new Message(text,  MessageType.Message, false));
         });
 
         this.connection.on('onClientJoinIntroduce', (name: string,  id: string) => {
@@ -39,11 +39,18 @@ export class ChatComponent implements OnInit {
             const text = name + ' joined our pity chat';
             
             this.users.push(new User(name, id));
-            this.publicMessages.push(new Message(text,  MessageType.Action));
+            this.publicMessages.push(new Message(text,  MessageType.Action, false));
             
             this.connection
                 .invoke('onClientJoinIntroduce', this.name, id)
-                .catch(error => console.log('The following error occured: ' + error.toString()));
+                .catch(error => console.log('The following error occured: ' + error));
+        });
+        
+        this.connection.on('onSendPrivateMessage', (id:string,  privateMessage: string) => {
+            let userPM = this.privateMessages.filter(pm => pm.user.id == id);
+            const newMessage = new Message(privateMessage, MessageType.Message, false);
+            
+            userPM[0].messages.push(newMessage);
         });
         
         this.connection
@@ -51,15 +58,22 @@ export class ChatComponent implements OnInit {
             .then(() => {
                 this.connection
                     .invoke('onClientJoin', this.name)
-                    .catch(error => console.log('The following error occured: ' + error.toString()));
+                    .catch(error => console.log('The following error occured: ' + error));
             })
-            .catch(error => console.log('The following error occurred: ' + error.toString()));
+            .catch(error => console.log('The following error occurred: ' + error));
     }
     
     public sendMessage() : void {
+        this.publicMessages.push(new Message(this.message, MessageType.Message, true));
         this.connection
-            .invoke('send', this.name, this.message)
-            .catch(error => console.log('The following error occured: ' + error.toString()));
+            .invoke('onSendMessage', this.name, this.message)
+            .catch(error => console.log('The following error occured: ' + error));
+    }
+    
+    public sendPrivateMessaeg(userId: string, message: string) : void {
+        this.connection
+            .invoke('onSendPrivateMessage', userId, message)
+            .catch(error => console.log('The following error occured: ' + error));
     }
     
 }
@@ -67,16 +81,18 @@ export class ChatComponent implements OnInit {
 export class Message {
     public content: string;
     public messageType: MessageType;
+    public sentByMe: boolean;
     
-    public constructor(content: string, type: MessageType) {
+    public constructor(content: string, type: MessageType, sentByMe: boolean) {
         this.content = content;
         this.messageType = type;
+        this.sentByMe = sentByMe;
     }
 }
 
 export class PrivateMessaging {
     public user: User;
-    public messages: string[];
+    public messages: Message[];
     
     public constructor(user:User) {
         this.user = user;

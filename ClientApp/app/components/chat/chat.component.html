@@ -11,7 +11,7 @@
 </form>
 
 <ul>
-    <li *ngFor="let message of publicMessages" [ngClass]="message.messageType === MessageType.Action ? 'action-message' : ''" >{{message.content}}</li>
+    <li *ngFor="let message of publicMessages" [ngClass]="{'action-message': message.messageType === MessageType.Action, 'my-message': message.sentByMe}" >{{message.content}}</li>
 </ul>
 
 <ul>

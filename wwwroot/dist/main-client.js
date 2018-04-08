@@ -59,7 +59,7 @@
 /******/ 	
 /******/ 	
 /******/ 	var hotApplyOnUpdate = true;
-/******/ 	var hotCurrentHash = "81659ee138aae71bf51b"; // eslint-disable-line no-unused-vars
+/******/ 	var hotCurrentHash = "24a760b653bada0036dc"; // eslint-disable-line no-unused-vars
 /******/ 	var hotCurrentModuleData = {};
 /******/ 	var hotCurrentChildModule; // eslint-disable-line no-unused-vars
 /******/ 	var hotCurrentParents = []; // eslint-disable-line no-unused-vars
@@ -4241,6 +4241,7 @@ var AppModuleShared = (function () {
 "use strict";
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return ChatComponent; });
 /* unused harmony export Message */
+/* unused harmony export PrivateMessaging */
 /* unused harmony export MessageType */
 /* unused harmony export User */
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_core__ = __webpack_require__(1);
@@ -4261,15 +4262,16 @@ var ChatComponent = (function () {
         this.message = '';
         this.publicMessages = [];
         this.users = [];
+        this.privateMessages = [];
         this.MessageType = MessageType;
     }
     ChatComponent.prototype.ngOnInit = function () {
         var _this = this;
         var tempName = window.prompt('Your name: ', 'John Doe');
         this.name = tempName ? tempName : '';
-        this.connection.on('send', function (name, receivedMessage) {
+        this.connection.on('onSendMessage', function (name, receivedMessage) {
             var text = name + ': ' + receivedMessage;
-            _this.publicMessages.push(new Message(text, MessageType.Message));
+            _this.publicMessages.push(new Message(text, MessageType.Message, false));
         });
         this.connection.on('onClientJoinIntroduce', function (name, id) {
             _this.users.push(new User(name, id));
@@ -4280,24 +4282,35 @@ var ChatComponent = (function () {
         this.connection.on('onClientJoin', function (name, id) {
             var text = name + ' joined our pity chat';
             _this.users.push(new User(name, id));
-            _this.publicMessages.push(new Message(text, MessageType.Action));
+            _this.publicMessages.push(new Message(text, MessageType.Action, false));
             _this.connection
                 .invoke('onClientJoinIntroduce', _this.name, id)
-                .catch(function (error) { return console.log('The following error occured: ' + error.toString()); });
+                .catch(function (error) { return console.log('The following error occured: ' + error); });
+        });
+        this.connection.on('onSendPrivateMessage', function (id, privateMessage) {
+            var userPM = _this.privateMessages.filter(function (pm) { return pm.user.id == id; });
+            var newMessage = new Message(privateMessage, MessageType.Message, false);
+            userPM[0].messages.push(newMessage);
         });
         this.connection
             .start()
             .then(function () {
             _this.connection
                 .invoke('onClientJoin', _this.name)
-                .catch(function (error) { return console.log('The following error occured: ' + error.toString()); });
+                .catch(function (error) { return console.log('The following error occured: ' + error); });
         })
-            .catch(function (error) { return console.log('The following error occurred: ' + error.toString()); });
+            .catch(function (error) { return console.log('The following error occurred: ' + error); });
     };
     ChatComponent.prototype.sendMessage = function () {
+        this.publicMessages.push(new Message(this.message, MessageType.Message, true));
         this.connection
-            .invoke('send', this.name, this.message)
-            .catch(function (error) { return console.log('The following error occured: ' + error.toString()); });
+            .invoke('onSendMessage', this.name, this.message)
+            .catch(function (error) { return console.log('The following error occured: ' + error); });
+    };
+    ChatComponent.prototype.sendPrivateMessaeg = function (userId, message) {
+        this.connection
+            .invoke('onSendPrivateMessage', userId, message)
+            .catch(function (error) { return console.log('The following error occured: ' + error); });
     };
     ChatComponent = __decorate([
         __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__angular_core__["Component"])({
@@ -4310,11 +4323,20 @@ var ChatComponent = (function () {
 }());
 
 var Message = (function () {
-    function Message(content, type) {
+    function Message(content, type, sentByMe) {
         this.content = content;
         this.messageType = type;
+        this.sentByMe = sentByMe;
     }
     return Message;
+}());
+
+var PrivateMessaging = (function () {
+    function PrivateMessaging(user) {
+        this.user = user;
+        this.messages = [];
+    }
+    return PrivateMessaging;
 }());
 
 var MessageType;
@@ -4486,7 +4508,7 @@ exports = module.exports = __webpack_require__(2)(undefined);
 
 
 // module
-exports.push([module.i, "li .action-message {\n    font-style: italic;\n    color: #888888;\n}", ""]);
+exports.push([module.i, "li.action-message {\n    font-style: italic;\n    color: #888888;\n}\n\nli.my-message {\n    float: right;\n}", ""]);
 
 // exports
 
@@ -4841,7 +4863,7 @@ module.exports = "<div class='container-fluid'>\r\n    <div class='row'>\r\n    
 /* 28 */
 /***/ (function(module, exports) {
 
-module.exports = "<h1>Chat</h1>\n\n<form (ngSubmit)=\"sendMessage()\" #chatForm=\"ngForm\">\n    <div>\n        <label for=\"message\">Message</label>\n        <input type=\"text\" id=\"message\" name=\"message\" [(ngModel)]=\"message\" required/>\n    </div>\n    <button type=\"submit\" id=\"sendMessage\">\n        Send message\n    </button>\n</form>\n\n<ul>\n    <li *ngFor=\"let message of publicMessages\" [ngClass]=\"message.messageType === MessageType.Action ? 'action-message' : ''\" >{{message.content}}</li>\n</ul>\n\n";
+module.exports = "<h1>Chat</h1>\n\n<form (ngSubmit)=\"sendMessage()\" #chatForm=\"ngForm\">\n    <div>\n        <label for=\"message\">Message</label>\n        <input type=\"text\" id=\"message\" name=\"message\" [(ngModel)]=\"message\" required/>\n    </div>\n    <button type=\"submit\" id=\"sendMessage\">\n        Send message\n    </button>\n</form>\n\n<ul>\n    <li *ngFor=\"let message of publicMessages\" [ngClass]=\"{'action-message': message.messageType === MessageType.Action, 'my-message': message.sentByMe}\" >{{message.content}}</li>\n</ul>\n\n<ul>\n    <li *ngFor=\"let user of users\">{{user.name}}</li>\n</ul>\n";
 
 /***/ }),
 /* 29 */

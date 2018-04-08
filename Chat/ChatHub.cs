@@ -6,9 +6,9 @@ namespace ChatApp.Chat
 {
     public class ChatHub : Hub
     {
-        public Task Send(string name, string message)
+        public Task OnSendMessage(string name, string message)
         {
-            return Clients.All.SendAsync("send", name, message);
+            return Clients.Others.SendAsync("onSendMessage", name, message);
         }
 
         public Task OnClientJoin(string name)
@@ -26,9 +26,9 @@ namespace ChatApp.Chat
             return Clients.Others.SendAsync("onClientDisconnect", Context.ConnectionId);
         }
 
-        public Task SendPrivateMessage(string receiverId, string senderId, string message)
+        public Task SendPrivateMessage(string receiverId, string message)
         {
-            return Clients.Client(receiverId).SendAsync("sendPrivateMessage", senderId, message);
+            return Clients.Client(receiverId).SendAsync("sendPrivateMessage", Context.ConnectionId, message);
         }
     }
 }
