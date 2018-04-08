@@ -59,7 +59,7 @@
 /******/ 	
 /******/ 	
 /******/ 	var hotApplyOnUpdate = true;
-/******/ 	var hotCurrentHash = "ceac685b56d6944f4850"; // eslint-disable-line no-unused-vars
+/******/ 	var hotCurrentHash = "3c9a64c627b8ff4b2621"; // eslint-disable-line no-unused-vars
 /******/ 	var hotCurrentModuleData = {};
 /******/ 	var hotCurrentChildModule; // eslint-disable-line no-unused-vars
 /******/ 	var hotCurrentParents = []; // eslint-disable-line no-unused-vars
@@ -4775,7 +4775,7 @@ module.exports = "<div class='container-fluid'>\r\n    <div class='row'>\r\n    
 /* 25 */
 /***/ (function(module, exports) {
 
-module.exports = "<h1>Chat</h1>\n\n<form (ngSubmit)=\"sendMessage()\" #chatForm=\"ngForm\">\n    <div>\n        <label for=\"message\">Message</label>\n        <input type=\"text\" id=\"message\" name=\"message\" [(ngModel)]=\"message\" required/>\n    </div>\n    <button type=\"submit\" id=\"sendMessage\">\n        Send message\n    </button>\n</form>\n\n<ul>\n    <li *ngFor=\"let message of publicMessages\" [ngClass]=\"{'action-message': message.messageType === MessageType.Action, 'my-message': message.sentByMe}\" >{{message.content}}</li>\n</ul>\n\n<ul>\n    <li *ngFor=\"let user of users\">{{user.name}}</li>\n</ul>\n";
+module.exports = "<h1>Chat</h1>\n\n<form (ngSubmit)=\"sendMessage()\" #chatForm=\"ngForm\" class=\"form-horizontal\">\n    <div class=\"form-group\">\n        <label for=\"message\" class=\"control-label\">Message</label>\n        <input type=\"text\" id=\"message\" name=\"message\" [(ngModel)]=\"message\" required class=\"form-control\"/>\n    </div>\n    <button type=\"submit\" id=\"sendMessage\" class=\"btn btn-primary\">\n        Send message\n    </button>\n</form>\n\n<div class=\"container\">\n    <div *ngFor=\"let message of publicMessages\" [ngClass]=\"{ 'action-message': message.messageType === MessageType.Action, 'col-md-offset-6': message.sentByMe, 'row': true }\">\n        <div class=\"col-md-6\">{{ !message.sentByMe ? message.content : '' }}</div>\n        <div class=\"col-md-6\">{{ message.sentByMe ? message.content : '' }}</div>\n        <br/>\n    </div>\n</div>\n\n<ul>\n    <li *ngFor=\"let user of users\">{{user.name}}</li>\n</ul>\n";
 
 /***/ }),
 /* 26 */
