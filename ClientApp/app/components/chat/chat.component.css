@@ -1,8 +1,4 @@
-li.action-message {
+.action-message {
     font-style: italic;
     color: #888888;
-}
-
-li.my-message {
-    float: right;
 }
