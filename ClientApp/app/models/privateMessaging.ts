@@ -1,5 +1,5 @@
-﻿import {Message} from "./message";
-import {User} from "./user";
+﻿import { Message } from "./message";
+import { User } from "./user";
 
 export class PrivateMessaging {
     public user: User;

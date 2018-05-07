@@ -1,4 +1,4 @@
-﻿import {MessageType} from "../enums/messageType";
+﻿import { MessageType } from "../enums/messageType";
 
 export class Message {
     public content: string;

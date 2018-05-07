@@ -1,11 +1,11 @@
-import {Component, OnDestroy, OnInit} from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { HubConnection } from '@aspnet/signalr';
-import {FormBuilder, FormGroup, Validators} from "@angular/forms";
+import { FormBuilder, FormGroup, Validators } from "@angular/forms";
 
 import { Message } from '../../models/message';
 import { MessageType } from '../../enums/messageType';
 import { User } from '../../models/user';
-import {PrivateMessaging} from "../../models/privateMessaging";
+import { PrivateMessaging } from "../../models/privateMessaging";
 
 @Component({
     selector: 'chatApp',
